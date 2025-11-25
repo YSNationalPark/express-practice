@@ -9,23 +9,24 @@ const port = 3000
 app.use(express.json())
 app.use(express.urlencoded({extended : true}));
 app.use(logger('dev'));
+app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    res.send('Hello world!');
+    res.sendFile('index.html')
 })
 
 //curl localhost:3000/user/tommy
-app.get('/user/:id', (req, rse) => {
+app.get('/user/:id', (req, res) => {
     res.send(`User id is ${req.params.id}`);
 })
 
 // curl "localhost:{port}/user?id={ur-id}"
-app.get('/user', (req, rse) => {
+app.get('/user', (req, res) => {
     res.send(`User id is ${req.query.id}`);
 })
 
-// curl -X POST localhost:3000/user -d '{"id": "jyc", "name" :"Jae Young"}' -H "Content-Type: application/json"
-app.post('/user', (req, rse) => {
+// curl -X POST localhost:3000/user -d '{"id": "pingk", "name" :"Yoonsoo Park"}' -H "Content-Type: application/json"
+app.post('/user', (req, res) => {
     console.log(req.body.name);
     res.send(req.body);
 })
