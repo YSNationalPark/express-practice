@@ -1,6 +1,8 @@
 const express = require('express');
 const logger = require('morgan');
 const axios = require('axios'); // npm install axios --save
+const list = require('./data');
+const firebase = require('./firebase');
 
 
 const app = express()
@@ -30,6 +32,42 @@ app.post('/user', (req, res) => {
     console.log(req.body.name);
     res.send(req.body);
 })
+
+app.get('/music_list', (req, res) => {
+    res.json(list);
+})
+
+app.get('/likes', async (req, res) => {
+    var db = firebase.firebase();
+    const snapshot = await db.collection('likes').get().catch(e => console.log(e));
+    var results = [];
+    if (snapshot.empty) {
+        console.log("No result");
+        res.json([]);
+        return;
+    } else {
+        snapshot.forEach(doc => {
+            results.push(doc.data())
+            // console.log(doc.id, '=>', doc.data());
+        });
+        res.json(results);
+    }
+})
+
+app.post('/like', async (req, res) => {
+    let item = req.body;
+    var db = firebase.firebase();
+    let r = await db.collection('likes').doc(item.collectionId.toString()).set(item);
+
+    res.json({result : 'ok'});
+})
+
+app.delete('likes/:id', async (req, res) => {
+    let db = firebase.firebase();
+    let r = await db.collection('likes').doc(req.params.id).delete();
+    res.json({result : 'ok'});
+})
+
 
 app.get('/musicSearch/:term', async (req, res) => {
     const params = {
