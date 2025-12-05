@@ -7,11 +7,14 @@ const firebase = require('./firebase');
 
 const app = express()
 const port = 3000
+const cors = require('cors'); // cors 모듈 import
 
 app.use(express.json())
 app.use(express.urlencoded({extended : true}));
 app.use(logger('dev'));
 app.use(express.static('public'));
+app.use(cors({ origin : '*'}));// app.use( ) 명령들 근처에 추가
+
 
 app.get('/', (req, res) => {
     res.sendFile('index.html')
@@ -38,7 +41,7 @@ app.get('/music_list', (req, res) => {
 })
 
 app.get('/likes', async (req, res) => {
-    var db = firebase.firebase();
+    var db = firebase.firestore();
     const snapshot = await db.collection('likes').get().catch(e => console.log(e));
     var results = [];
     if (snapshot.empty) {
@@ -54,16 +57,16 @@ app.get('/likes', async (req, res) => {
     }
 })
 
-app.post('/like', async (req, res) => {
+app.post('/likes', async (req, res) => {
     let item = req.body;
-    var db = firebase.firebase();
+    var db = firebase.firestore();
     let r = await db.collection('likes').doc(item.collectionId.toString()).set(item);
 
     res.json({result : 'ok'});
 })
 
-app.delete('likes/:id', async (req, res) => {
-    let db = firebase.firebase();
+app.delete('/likes/:id', async (req, res) => {
+    let db = firebase.firestore();
     let r = await db.collection('likes').doc(req.params.id).delete();
     res.json({result : 'ok'});
 })
